@@ -33,19 +33,39 @@ const c = canvas.getContext("2d");
 // }
 
 // ANIMATION
+// Mouse Object for Interactivity
+const mouse = {
+  x: undefined,
+  y: undefined,
+};
+const maxRadius = 40;
+// const minRadius = 10;
+window.addEventListener("mousemove", function (e) {
+  mouse.x = e.x;
+  mouse.y = e.y;
+});
+window.addEventListener("resize", function (e) {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  init();
+});
+const colorArray = ["#2F8F9D", "#3BACB6", "#82DBD8", "#B3E8E5", "#F73D93"];
+// Create Circle Object Constructor
 function Circle(x, y, radius, dx, dy) {
   this.x = x;
   this.y = y;
   this.radius = radius;
+  this.minRadius = radius;
   this.dx = dx;
   this.dy = dy;
-
+  this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
   this.draw = function () {
     c.beginPath();
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-
-    c.strokeStyle = "blue";
-    c.stroke();
+    c.fillStyle = this.color;
+    c.fill();
+    // c.strokeStyle = "blue";
+    // c.stroke();
   };
   this.update = function () {
     if (this.x + this.radius > innerWidth || this.x - this.radius < 0) {
@@ -56,19 +76,35 @@ function Circle(x, y, radius, dx, dy) {
     }
     this.x += this.dx;
     this.y += this.dy;
+    // Interactivity
+    if (
+      mouse.x - this.x < 50 &&
+      mouse.x - this.x > -50 &&
+      mouse.y - this.y < 50 &&
+      mouse.y - this.y > -50
+    ) {
+      if (this.radius < maxRadius) {
+        this.radius += 1;
+      }
+    } else if (this.radius > this.minRadius) {
+      this.radius -= 1;
+    }
   };
 }
-let circle = new Circle(100, 150, 20, 3, 4);
 
-const circleArray = [];
-for (let i = 0; i < 100; i++) {
-  const radius = 30;
-  let x = Math.random() * (innerWidth - radius * 2) + radius;
-  let y = Math.random() * (innerHeight - radius * 2) + radius;
-  let dx = Math.random() - 0.5;
-  let dy = Math.random() - 0.5;
-  circleArray.push(new Circle(x, y, radius, dx, dy));
+let circleArray = [];
+function init() {
+  circleArray = [];
+  for (let i = 0; i < 800; i++) {
+    const radius = Math.random() * 3 + 1;
+    let x = Math.random() * (innerWidth - radius * 2) + radius;
+    let y = Math.random() * (innerHeight - radius * 2) + radius;
+    let dx = Math.random() - 0.5;
+    let dy = Math.random() - 0.5;
+    circleArray.push(new Circle(x, y, radius, dx, dy));
+  }
 }
+init();
 // console.log(circleArray);
 function animate() {
   requestAnimationFrame(animate);
